@@ -50,21 +50,26 @@ if __name__ == '__main__':
             qa_chain, 
             #translate_chain(llm, 'Swedish', input_variable='answer'),
         ],
-        input_variables=["question", "input_documents"],
+        input_variables=["english_translation", "input_documents"],
         #output_variables=["answer", "swedish_translation"],
-        verbose=True)
+        verbose=False)
     retriever = time_it(get_retriever, doc_limit=500)
     print("Starting...")
     
     questions = [
+        {'swe': 'Vad är lycka?', 'eng': 'Who knows Java programming?'},
+        {'swe': 'Vem kan programmera Java?', 'eng': 'Who knows Java programming?'},
         {'swe': 'Vilka rapporter och undersökningar har genomförts?', 'eng': 'What surveys and investigations has been conducted?' },
         {'swe': 'Vilka utbildningar finns det?', 'eng': 'What education courses can I take?'},
     ]
     for query in questions:
         print("Question:", query['swe'])
         docs = time_it(retriever.get_relevant_documents, query['swe']) 
-        print("Sources:", docs)
-        print("len docs", len(docs), "len words", ' '.join([d.page_content for d in docs]).count(' ') + 1)
+        #print("Sources:", docs)
+        #print("len docs", len(docs), "len words", ' '.join([d.page_content for d in docs]).count(' ') + 1)
         print("Answer:")
-        print(time_it(chain, {"input_documents": docs, "english_translation": query['swe']}))
+        answer = time_it(chain, {"input_documents": docs, "english_translation": query['eng']})
+        print(answer['answer'])
+        print("Sources:", '- ' + ' - '.join([d.page_content for d in docs]))
+        print()
         print()
